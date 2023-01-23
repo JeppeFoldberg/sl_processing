@@ -4,7 +4,7 @@ from nltk import ngrams, FreqDist
 from collections import Counter
 
 # 3.4 Bigram language model
-corpus = ['<s> I am Sam </s>', '<s> Sam I am </s>',
+sens = ['<s> I am Sam </s>', '<s> Sam I am </s>',
 '<s> I am Sam </s>', '<s> I do not like green eggs and Sam </s>']
 
 #%% 
@@ -44,16 +44,18 @@ def calculate_mle_estimate(pattern: tuple, corpus: list, add_one_smoothing: bool
     Calculate the mle_estimate of a given sentence 
     '''
     grams = count_bi_uni_grams(corpus)
-    
+
+    V = 0
     if add_one_smoothing:
         for key in grams.keys():
             if type(key) == tuple:
-                print(f'tuple {key}')
+                # increasing the count of all the bigrams
                 grams[key] += 1
             else:
-                print(f'not tuple: {key}')
+                # we need to adjust the denominator for when we normalise probabilities!
+                V += 1 # increase vocab count so we know what it is! 
 
-        mle_estimate = (grams[pattern]) / (grams[pattern[0]] + len(grams))
+        mle_estimate = (grams[pattern]) / (grams[pattern[0]] + V)
 
 
     else:
@@ -71,10 +73,10 @@ calculate_mle_estimate(('am', 'Sam'), corpus=corpus)
 # Løsning herfra
 # https://github.com/Clement25/Speech-and-Language-Processing-ver3-solutions/blob/master/Chapter3.ipynb
 # 3.4
-sentence_words = []
-for sentence in corpus:
-    sentence_words.append(sentence.split())
-print(sentence_words)
+sen_wds = []
+for sen in corpus:
+    sen_wds.append(sen.split())
+print(sen_wds)
 
 def add1smooth(sens, pre, cur):
     Vocab = set()
@@ -89,8 +91,7 @@ def add1smooth(sens, pre, cur):
                 total += 1
                 if sen[i+1] == cur:
                     target += 1
-    print(len(Vocab))
     return (target+1)/(total+V)
     
-print(add1smooth(sentence_words, 'am', 'Sam'))
+print(add1smooth(sen_wds, 'am', 'Sam'))    
 # %%
