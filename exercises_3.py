@@ -1,41 +1,52 @@
 #%% 
-import re
-from nltk import ngrams, FreqDist
+from nltk import ngrams
 from collections import Counter
 
 # 3.4 Bigram language model
-sens = ['<s> I am Sam </s>', '<s> Sam I am </s>',
+corpus = ['<s> I am Sam </s>', '<s> Sam I am </s>',
 '<s> I am Sam </s>', '<s> I do not like green eggs and Sam </s>']
 
 #%% 
-# implemented with nltk
+# implemented with nltk – To check which solution is correct! This does not find the same probability 
+# since it implements an unknown token and moves some probability mass to this token
+# This is more robust for future cases but in the example the solution below
+# might be a bit better. 
+from nltk.lm import Laplace
+from nltk.lm.preprocessing import padded_everygram_pipeline
 
+text = [['I', 'am', 'Sam'], ['Sam', 'I', 'am',],
+['I', 'am', 'Sam'], ['I', 'do', 'not', 'like', 'green', 'eggs', 'and', 'Sam']]
+
+train, vocab = padded_everygram_pipeline(2, text)
+
+# for gen in train:  
+#     print(*gen)
+
+lm = Laplace(2)
+lm.fit(train, vocab)
+
+print(lm.vocab)
+lm.score("Sam", ["am"])
+#%%
 
 #%% 
-
-# print(count_occurences('I am', corpus))
-
 def count_bi_uni_grams(corpus: list):
     '''
     given a corpus and a n calculates the MLE estimates for each N-gram
-    returns a dictionary with the counts
+    returns a counter with the counts of bigrams
     '''
-    counter = Counter
-
-    # n_grams = [ngrams(sentence.split(), n=n) for sentence in corpus]
-    all_n_grams = []
+    every_grams = []
     for sentence in corpus: 
         bi_grams = list(ngrams(sentence.split(), n=2))
         uni_grams = sentence.split()
 
-        all_n_grams.append(bi_grams)
-        all_n_grams.append(uni_grams)
+        every_grams.append(bi_grams)
+        every_grams.append(uni_grams)
 
-    # print(all_n_grams)
     
-    flat_list = [item for sublist in all_n_grams for item in sublist]
+    flat_list_bigrams = [item for sublist in every_grams for item in sublist]
 
-    n_grams = Counter(flat_list)
+    n_grams = Counter(flat_list_bigrams)
 
     return n_grams
     
@@ -49,12 +60,10 @@ def calculate_mle_estimate(pattern: tuple, corpus: list, add_one_smoothing: bool
     if add_one_smoothing:
         for key in grams.keys():
             if type(key) == tuple:
-                # increasing the count of all the bigrams
                 grams[key] += 1
             else:
-                # we need to adjust the denominator for when we normalise probabilities!
-                V += 1 # increase vocab count so we know what it is! 
-
+                V += 1 
+                
         mle_estimate = (grams[pattern]) / (grams[pattern[0]] + V)
 
 
