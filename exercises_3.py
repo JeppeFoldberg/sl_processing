@@ -9,7 +9,7 @@ corpus = ['<s> I am Sam </s>', '<s> Sam I am </s>',
 #%% 
 # implemented with nltk – To check which solution is correct! This does not find the same probability 
 # since it implements an unknown token and moves some probability mass to this token
-# This is more robust for future cases but in the example the solution below
+# This is more robust for future cases but in the book example the solution below
 # might be a bit better. 
 from nltk.lm import Laplace
 from nltk.lm.preprocessing import padded_everygram_pipeline
@@ -71,10 +71,10 @@ def calculate_mle_estimate(pattern: tuple, corpus: list, add_one_smoothing: bool
         mle_estimate = (grams[pattern]) / (grams[pattern[0]])
 
 
-    print(mle_estimate)
+    return mle_estimate
 
 
-calculate_mle_estimate(('am', 'Sam'), corpus=corpus)
+print(calculate_mle_estimate(('am', 'Sam'), corpus=corpus))
 # calculate_bigram_MLE(corpus)
 # %%
 
@@ -104,3 +104,13 @@ def add1smooth(sens, pre, cur):
     
 print(add1smooth(sen_wds, 'am', 'Sam'))    
 # %%
+# 3.5 
+corpus = ['<s> a b', '<s> b b', '<s> b a', '<s> a a']
+
+aa = calculate_mle_estimate(('a', 'a'), corpus, add_one_smoothing=False)
+ab = calculate_mle_estimate(('a', 'b'), corpus, add_one_smoothing=False)
+bb = calculate_mle_estimate(('b', 'b'), corpus, add_one_smoothing=False)
+ba = calculate_mle_estimate(('b', 'a'), corpus, add_one_smoothing=False)
+print(aa + ab + bb + ba)
+
+# See notebook! 
